@@ -35,5 +35,5 @@ Click the ☀️/🌙 button on the top-right corner to toggle **light/dark mode
 No installation is required! You can simply **open `index.html` in a browser**, or host it on **GitHub Pages**:
 
 ```bash
-git clone https://github.com/YourUsername/github-to-cdn.git
+git clone https://github.com/RealTenzo/github-to-cdn.git
 cd github-to-cdn

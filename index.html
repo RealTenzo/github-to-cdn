@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub to CDN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --bg: #fafafa;
+            --surface: #fff;
+            --surfaceh: #f5f5f5;
+            --txt: #171717;
+            --txt2: #525252;
+            --txtm: #a3a3a3;
+            --acc: #2563eb;
+            --accsoft: #dbeafe;
+            --brd: #e5e5e5;
+            --ok: #16a34a;
+            --oksoft: #dcfce7;
+            --err: #dc2626;
+            --errsoft: #fee2e2
+        }
+
+        body.dark {
+            --bg: #0a0a0a;
+            --surface: #171717;
+            --surfaceh: #262626;
+            --txt: #fafafa;
+            --txt2: #a3a3a3;
+            --txtm: #525252;
+            --acc: #3b82f6;
+            --accsoft: #1e3a5f;
+            --brd: #262626;
+            --ok: #22c55e;
+            --oksoft: #14532d;
+            --err: #ef4444;
+            --errsoft: #7f1d1d
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--txt);
+            min-height: 100vh;
+            line-height: 1.5;
+            transition: background .3s, color .3s
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        .wrap {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 48px 24px
+        }
+
+        .themebtn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--brd);
+            background: var(--surface);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: transform .2s, box-shadow .2s;
+            z-index: 100
+        }
+
+        .themebtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .1)
+        }
+
+        .themebtn:active {
+            transform: scale(.95)
+        }
+
+        .hdr {
+            text-align: center;
+            margin-bottom: 48px
+        }
+
+        .hdr h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -.5px;
+            margin-bottom: 8px
+        }
+
+        .hdr p {
+            font-size: 15px;
+            color: var(--txt2)
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--brd);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: box-shadow .2s
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .06)
+        }
+
+        body.dark .card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .3)
+        }
+
+        .lbl {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--txt2);
+            margin-bottom: 8px;
+            display: block
+        }
+
+        .inprow {
+            display: flex;
+            gap: 10px
+        }
+
+        .urlinp {
+            flex: 1;
+            padding: 12px 14px;
+            font-size: 14px;
+            font-family: inherit;
+            border: 1px solid var(--brd);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--txt);
+            outline: none;
+            transition: border-color .2s, box-shadow .2s
+        }
+
+        .urlinp:focus {
+            border-color: var(--acc);
+            box-shadow: 0 0 0 3px var(--accsoft)
+        }
+
+        .urlinp::placeholder {
+            color: var(--txtm)
+        }
+
+        .btnp {
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            background: var(--acc);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s, opacity .15s;
+            white-space: nowrap
+        }
+
+        .btnp:hover {
+            opacity: .9;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, .3)
+        }
+
+        .btnp:active {
+            transform: scale(.97)
+        }
+
+        .outbox {
+            background: var(--bg);
+            border: 1px solid var(--brd);
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 13px;
+            font-family: 'SF Mono', monospace;
+            color: var(--txtm);
+            word-break: break-all;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            transition: all .2s;
+            margin-bottom: 12px
+        }
+
+        .outbox.ok {
+            color: var(--txt);
+            border-color: var(--ok);
+            background: var(--oksoft)
+        }
+
+        .outbox.bad {
+            color: var(--err);
+            border-color: var(--err);
+            background: var(--errsoft)
+        }
+
+        .acts {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .btns {
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            background: var(--surface);
+            color: var(--txt);
+            border: 1px solid var(--brd);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .15s, transform .1s;
+            display: flex;
+            align-items: center;
+            gap: 6px
+        }
+
+        .btns:hover {
+            background: var(--surfaceh)
+        }
+
+        .btns:active {
+            transform: scale(.97)
+        }
+
+        .btns svg {
+            width: 14px;
+            height: 14px;
+            opacity: .7
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--txt);
+            color: var(--bg);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0;
+            transition: transform .3s, opacity .3s;
+            z-index: 1000
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1
+        }
+
+        .ftr {
+            text-align: center;
+            margin-top: 48px;
+            font-size: 13px;
+            color: var(--txtm)
+        }
+
+        .hint {
+            font-size: 11px;
+            color: var(--txtm);
+            margin-top: 12px
+        }
+
+        .hint kbd {
+            background: var(--surfaceh);
+            border: 1px solid var(--brd);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: inherit;
+            font-size: 10px
+        }
+
+        @media(max-width:480px) {
+            .wrap {
+                padding: 32px 16px
+            }
+
+            .inprow {
+                flex-direction: column
+            }
+
+            .btnp {
+                width: 100%
+            }
+
+            .acts {
+                flex-direction: column
+            }
+
+            .btns {
+                justify-content: center
+            }
+        }
+
+        button:focus-visible,
+        input:focus-visible {
+            outline: 2px solid var(--acc);
+            outline-offset: 2px
+        }
+    </style>
+</head>
+
+<body>
+    <button class="themebtn" id="thm">☀️</button>
+    <div class="wrap">
+        <header class="hdr">
+            <h1>GitHub to CDN</h1>
+            <p>Convert raw GitHub URLs to fast CDN links</p>
+        </header>
+        <div class="card">
+            <label class="lbl" for="inp">GitHub Raw URL</label>
+            <div class="inprow">
+                <input type="text" id="inp" class="urlinp"
+                    placeholder="https://raw.githubusercontent.com/user/repo/branch/file.js" spellcheck="false"
+                    autocomplete="off">
+                <button id="conv" class="btnp">Convert</button>
+            </div>
+            <p class="hint">Press <kbd>Enter</kbd> to convert</p>
+        </div>
+        <div class="card">
+            <label class="lbl">CDN URL</label>
+            <div class="outbox" id="out">Paste a GitHub URL above and click Convert</div>
+            <div class="acts">
+                <button class="btns" id="cpy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                    </svg>Copy</button>
+                <button class="btns" id="opn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>Open</button>
+                <button class="btns" id="clr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>Clear</button>
+            </div>
+        </div>
+        <footer class="ftr">Built by Tenzo</footer>
+    </div>
+    <div class="toast" id="tst"></div>
+    <script>
+        (function () {
+            var inp = document.getElementById('inp'), out = document.getElementById('out'), conv = document.getElementById('conv'), cpy = document.getElementById('cpy'), opn = document.getElementById('opn'), clr = document.getElementById('clr'), thm = document.getElementById('thm'), tst = document.getElementById('tst'), url = '', re = /raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)/
+            function tocdn(u) { var m = u.match(re); if (!m) return null; return 'https://cdn.jsdelivr.net/gh/' + m[1] + '/' + m[2] + '@' + m[3] + '/' + m[4] }
+            function toast(x) { tst.textContent = x; tst.classList.add('show'); setTimeout(function () { tst.classList.remove('show') }, 2e3) }
+            conv.onclick = function () { var v = inp.value.trim(); if (!v) { out.textContent = 'enter a url pls'; out.className = 'outbox bad'; url = ''; inp.focus(); return } var r = tocdn(v); if (r) { out.textContent = r; out.className = 'outbox ok'; url = r } else { out.textContent = 'not a valid github raw url'; out.className = 'outbox bad'; url = '' } }
+            inp.onkeydown = function (e) { if (e.key == 'Enter' || e.keyCode == 13) conv.onclick() }
+            cpy.onclick = function () { if (!url) return; if (navigator.clipboard) { navigator.clipboard.writeText(url).then(function () { toast('copied!') }) } else { var t = document.createElement('textarea'); t.value = url; t.style.cssText = 'position:fixed;left:-999px'; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); toast('copied!') } }
+            opn.onclick = function () { if (url) window.open(url, '_blank') }
+            clr.onclick = function () { inp.value = ''; out.textContent = 'Paste a GitHub URL above and click Convert'; out.className = 'outbox'; url = ''; inp.focus() }
+            function dark(d) { if (d) { document.body.classList.add('dark'); thm.textContent = '🌙' } else { document.body.classList.remove('dark'); thm.textContent = '☀️' } }
+            thm.onclick = function () { var d = document.body.classList.toggle('dark'); thm.textContent = d ? '🌙' : '☀️'; try { localStorage.theme = d ? 'dark' : 'light' } catch (e) { } }
+                ; (function () { var s; try { s = localStorage.theme } catch (e) { } if (s == 'dark') dark(1); else if (s == 'light') dark(0); else if (matchMedia('(prefers-color-scheme:dark)').matches) dark(1) })()
+            inp.focus()
+        })()
+    </script>
+</body>
+
+</html>

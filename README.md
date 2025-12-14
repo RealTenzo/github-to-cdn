@@ -1,7 +1,9 @@
 # GitHub to CDN
 
-Convert raw GitHub URLs to fast CDN links in one click!
+Convert raw GitHub URLs to fast CDN links in one click!  
 Built with **HTML, CSS, and JavaScript**.
+
+[Live Demo → github-to-cdn.vercel.app](https://github-to-cdn.vercel.app)
 
 ## Features
 
@@ -13,7 +15,7 @@ Built with **HTML, CSS, and JavaScript**.
 
 ## Usage
 
-1. Open the web page.
+1. Open the [Live Demo](https://github-to-cdn.vercel.app) or your local copy.
 2. Paste a **GitHub Raw URL** (e.g., `https://raw.githubusercontent.com/user/repo/branch/file.js`) into the input box.
 3. Click **Convert** or press `Enter`.
 4. Copy the generated CDN link or open it in a new tab.
